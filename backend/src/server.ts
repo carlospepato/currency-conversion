@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import cors from '@fastify/cors'
 import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -18,7 +19,9 @@ const server = fastify({ logger: true });
 server.setValidatorCompiler(validatorCompiler);
 server.setSerializerCompiler(serializerCompiler);
 
-const BASE_URL = process.env.BASE_URL;
+await server.register(cors, {
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+});
 
 server.register(conversionRoutes);
 server.register(HistoryConversions)

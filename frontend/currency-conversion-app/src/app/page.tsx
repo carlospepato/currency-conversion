@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
@@ -15,11 +15,7 @@ const schema = z.object({
   to: z.string().min(1, 'Selecione a moeda de destino'),
 })
 
-interface fetchObject{
-  from: string,
-  to: string,
-  amount: string
-}
+type FieldValues = z.infer<typeof schema>;
 
 export default function Home() {
   const {
@@ -27,13 +23,13 @@ export default function Home() {
     handleSubmit,
     formState: { errors },
     control
-  } = useForm({
+  } = useForm<FieldValues>({
     resolver: zodResolver(schema),
   })
 
   const [result, setResult] = useState(null);
 
-  const onSubmit = async (data : fetchObject) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       const { from, to, amount } = data;
       console.log(data)
@@ -59,8 +55,6 @@ export default function Home() {
     }
   };
   
-  
-
   return (
     <div className="w-full mx-auto flex flex-col justify-center items-center min-h-[calc(100vh-64px)]">
       <form
@@ -82,7 +76,6 @@ export default function Home() {
               </span>
             )}
           </div>
-          
         </div>
         <button
           type="submit"

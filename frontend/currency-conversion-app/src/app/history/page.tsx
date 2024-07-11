@@ -55,7 +55,7 @@ export default function History(){
                 <tr key={index}>
                   <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{item.from}</td>
                   <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{item.to}</td>
-                  <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{formatCurrency(parseFloat(item.amount), null)}</td>
+                  <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{formatCurrency(parseFloat(item.amount), item.from)}</td>
                   <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{formatCurrency(parseFloat(item.convertedAmount), item.to)}</td>
                   <td className="py-2 px-4 border-b border-zinc-800 text-center text-zinc-300">{new Date(item.createdAt).toLocaleString()}</td>
                 </tr>

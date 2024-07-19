@@ -8,12 +8,20 @@ import { Input } from "@/components/ui/input"
 import { ArrowRight } from "lucide-react"
 import { SelectFrom } from "@/components/currency-from"
 import { SelectTo } from "@/components/currency-to"
+import { formatCurrency } from "./history/page"
 
 const schema = z.object({
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid number with up to two decimal places"),
-  from: z.string().min(1,'Selecione a moeda de origem'),
+  from: z.string().min(1, 'Selecione a moeda de origem'),
   to: z.string().min(1, 'Selecione a moeda de destino'),
 })
+
+interface ResultType {
+  from: string;
+  to: string;
+  amount: string;
+  result: string;
+}
 
 type FieldValues = z.infer<typeof schema>;
 
@@ -27,34 +35,33 @@ export default function Home() {
     resolver: zodResolver(schema),
   })
 
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<ResultType>();
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       const { from, to, amount } = data;
       console.log(data)
       const url = `http://localhost:3333/conversion?from=${from}&to=${to}&amount=${amount}`;
-  
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
-      const result = await response.json();
-      console.log(result); // Aqui você pode fazer o que precisar com a resposta
-      setResult(result);
-  
+
+      const resultResponse = await response.json();
+      setResult(resultResponse);
+
     } catch (error) {
       console.error('There has been a problem with your fetch operation:', error);
     }
   };
-  
+
   return (
     <div className="w-full mx-auto flex flex-col justify-center items-center min-h-[calc(100vh-64px)]">
       <form
@@ -62,8 +69,8 @@ export default function Home() {
         className="w-full flex items-center justify-between gap-2 bg-zinc-800 p-3 rounded-lg shadow-shape"
       >
         <div className="flex justify-between w-full">
-          <SelectFrom control={control}/>
-          <SelectTo control={control}/>
+          <SelectFrom control={control} />
+          <SelectTo control={control} />
           <div className="w-full flex-col">
             <Input
               {...register("amount")}
@@ -86,11 +93,12 @@ export default function Home() {
         </button>
       </form>
       {result && (
-        <div className="mt-4">
-          <pre className="text-zinc-300 bg-zinc-800 p-3 rounded-lg shadow-shape">
-            {JSON.stringify(result, null, 2)}
-          </pre>
-        </div>
+          <div className="flex gap-2 mt-4 bg-zinc-800 p-3 rounded-lg shadow-shape">
+            <p className="font-semibold text-zinc-400">Moeda Selecionada: <span className="text-zinc-300 font-normal">{result.from}</span></p>
+            <p className="font-semibold text-zinc-400">Moeda Desejada: <span className="text-zinc-300 font-normal">{result.to}</span></p>
+            <p className="font-semibold text-zinc-400">Valor a ser convertido: <span className="text-zinc-300 font-normal">{formatCurrency(parseFloat(result.amount), result.from)}</span></p>
+            <p className="font-semibold text-zinc-400">Valor convertido: <span className="text-zinc-300 font-normal">{formatCurrency(parseFloat(result.result), result.to)}</span></p>
+          </div>
       )}
     </div>
   )
